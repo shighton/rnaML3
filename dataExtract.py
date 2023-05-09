@@ -1,4 +1,6 @@
 # Pull labels and sequences out of data pool
+# Concatenate and digitize nucleotide sequences
+# Write finished digitized sequences to respective files
 
 import re
 
