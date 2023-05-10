@@ -2,6 +2,7 @@
 # Concatenate and digitize nucleotide sequences
 # Write finished digitized sequences to respective files
 # Extract free energies and number of bonds
+# Write to separate files for passing to model.py
 
 import re
 
