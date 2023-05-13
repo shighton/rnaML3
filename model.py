@@ -40,9 +40,69 @@ frames = [missDF, hitDF]
 
 result = pd.concat(frames)
 
-#print(missDF.head(), '\n\n', hitDF.head())
+# -- Used to check the two separated dataframes
+# print(missDF.head(), '\n\n', hitDF.head())
 
-#print(result.head())
+# -- Used to check the combined dataframe
+# print(result.shape)
 
-plt.scatter(result['NumBonds'], result['Sequence'])
+# -- Used to play with matplotlib functionality
+# plt.scatter(result['NumBonds'], result['Sequence'])
+# plt.show()
+
+result['Label'] = result['Label'].astype(float)
+result['Sequence'] = result['Sequence'].astype(float)
+result['NumBonds'] = result['NumBonds'].astype(float)
+result['Energy'] = result['Energy'].astype(float)
+
+# print(result.dtypes)
+
+from sklearn.model_selection import train_test_split
+
+x = result.drop(['Label'], axis=1)
+y = result['Label']
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+
+from keras.models import Sequential
+from keras.layers import Dense
+
+model = Sequential()
+# model.add(Dense(128, activation='relu', input_shape=(None, 3)))
+# model.add(Dense(128, activation='relu'))
+model.add(Dense(1, activation='sigmoid', input_dim=3))
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.summary()
+
+hist = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=10, batch_size=100)
+
+import seaborn as sns
+
+sns.set()
+
+acc = hist.history['accuracy']
+val = hist.history['val_accuracy']
+epochs = range(1, len(acc) + 1)
+
+# print(len(epochs))
+# print(len(acc))
+
+plt.plot(epochs, acc, '-', label='Training Accuracy')
+plt.plot(epochs, val, ':', label='Validation Accuracy')
+plt.title('Training vs Validation Accuracies')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend(loc='lower right')
+plt.plot()
+plt.show()
+
+from sklearn.metrics import confusion_matrix
+
+y_predicted = model.predict(x_test) > 0.5
+mat = confusion_matrix(y_test, y_predicted)
+labels = ['Hit', 'Miss']
+
+sns.heatmap(mat, square=True, annot=True, fmt='d', cbar=False, cmap='Blues', xticklabels=labels, yticklabels=labels)
+plt.xlabel('Predicted Label')
+plt.ylabel('Actual Label')
 plt.show()
